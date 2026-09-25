@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>ChorBot AI</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg: #050816;
+            --panel: rgba(10, 15, 35, 0.72);
+            --panel-light: rgba(255, 255, 255, 0.06);
+            --border: rgba(255, 255, 255, 0.10);
+
+            --primary: #7c5cff;
+            --primary2: #4f8cff;
+            --cyan: #20d9ff;
+
+            --text: #f4f7ff;
+            --muted: #8e9ab7;
+
+            --user-gradient: linear-gradient(135deg, #5d5dfd, #8b5cf6);
+            --bot-bg: rgba(255, 255, 255, 0.065);
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 15% 15%, rgba(89, 67, 255, 0.20), transparent 30%),
+                radial-gradient(circle at 85% 80%, rgba(0, 198, 255, 0.15), transparent 30%),
+                var(--bg);
+
+            height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ================================
+           ANIMATED BACKGROUND
+        ================================= */
+
+        .background {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.45;
+            animation: floatOrb 15s ease-in-out infinite alternate;
+        }
+
+        .orb-1 {
+            width: 430px;
+            height: 430px;
+            background: #6946ff;
+            top: -180px;
+            left: -100px;
+        }
+
+        .orb-2 {
+            width: 380px;
+            height: 380px;
+            background: #008cff;
+            right: -120px;
+            bottom: -140px;
+            animation-delay: -4s;
+        }
+
+        .orb-3 {
+            width: 260px;
+            height: 260px;
+            background: #9b4dff;
+            left: 45%;
+            top: 45%;
+            opacity: 0.15;
+            animation-delay: -8s;
+        }
+
+        @keyframes floatOrb {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(60px, 30px) scale(1.1);
+            }
+
+            100% {
+                transform: translate(-20px, 80px) scale(0.95);
+            }
+        }
+
+        /* subtle grid */
+
+        .grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+            background-size: 45px 45px;
+            mask-image: linear-gradient(to bottom, black, transparent);
+        }
+
+        /* ================================
+           CHAT CONTAINER
+        ================================= */
+
+        .chat-container {
+            width: 94%;
+            max-width: 1000px;
+            height: 92dvh;
+
+            background: var(--panel);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+
+            border: 1px solid var(--border);
+            border-radius: 28px;
+
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+
+            box-shadow:
+                0 30px 100px rgba(0, 0, 0, 0.55),
+                inset 0 1px 0 rgba(255,255,255,.05);
+
+            animation: containerEnter 0.7s cubic-bezier(.2,.8,.2,1);
+        }
+
+        @keyframes containerEnter {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ================================
+           HEADER
+        ================================= */
+
+        .header {
+            padding: 18px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+
+            background: rgba(255,255,255,.025);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 14px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 23px;
+
+            background: linear-gradient(
+                135deg,
+                var(--primary),
+                var(--primary2),
+                var(--cyan)
+            );
+
+            box-shadow:
+                0 0 25px rgba(111, 92, 255, .4);
+
+            animation: logoGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes logoGlow {
+            from {
+                box-shadow: 0 0 15px rgba(111,92,255,.25);
+            }
+
+            to {
+                box-shadow: 0 0 35px rgba(32,217,255,.45);
+            }
+        }
+
+        .logo-info h1 {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.4px;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
+
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #35e89a;
+            box-shadow: 0 0 10px #35e89a;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        select,
+        .clear-btn {
+            height: 39px;
+            padding: 0 13px;
+
+            color: #e9edff;
+            background: rgba(255,255,255,.055);
+
+            border: 1px solid rgba(255,255,255,.10);
+            border-radius: 11px;
+
+            font-family: inherit;
+            font-size: 13px;
+
+            outline: none;
+            cursor: pointer;
+
+            transition: .25s ease;
+        }
+
+        select:hover,
+        .clear-btn:hover {
+            background: rgba(255,255,255,.10);
+            border-color: rgba(139, 110, 255, .5);
+            transform: translateY(-1px);
+        }
+
+        select option {
+            background: #11162b;
+            color: white;
+        }
+
+        /* ================================
+           CHAT
+        ================================= */
+
+        .chat-box {
+            flex: 1;
+            overflow-y: auto;
+
+            display: flex;
+            flex-direction: column;
+            gap: 19px;
+
+            padding: 25px 28px;
+
+            scroll-behavior: smooth;
+        }
+
+        .chat-box::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .chat-box::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chat-box::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,.15);
+            border-radius: 20px;
+        }
+
+        /* ================================
+           WELCOME
+        ================================= */
+
+        .welcome {
+            margin: auto;
+            text-align: center;
+            max-width: 580px;
+
+            animation: welcomeEnter .8s ease;
+        }
+
+        @keyframes welcomeEnter {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .bot-circle {
+            width: 84px;
+            height: 84px;
+
+            margin: 0 auto 22px;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            border-radius: 26px;
+
+            font-size: 39px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--primary),
+                    var(--primary2),
+                    var(--cyan)
+                );
+
+            box-shadow:
+                0 15px 50px rgba(92, 81, 255, .35);
+
+            animation: botFloat 3.5s ease-in-out infinite;
+        }
+
+        @keyframes botFloat {
+            0%, 100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        .welcome h2 {
+            font-size: clamp(26px, 4vw, 38px);
+            letter-spacing: -1.3px;
+            margin-bottom: 12px;
+
+            background: linear-gradient(
+                90deg,
+                #ffffff,
+                #c4c9ff,
+                #70dcff
+            );
+
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome p {
+            color: var(--muted);
+            line-height: 1.75;
+            font-size: 14px;
+        }
+
+        .welcome-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+
+            padding: 7px 12px;
+            margin-bottom: 17px;
+
+            border-radius: 50px;
+
+            background: rgba(124,92,255,.1);
+            border: 1px solid rgba(124,92,255,.2);
+
+            color: #b9afff;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* ================================
+           MESSAGES
+        ================================= */
+
+        .message {
+            max-width: 78%;
+            display: flex;
+            gap: 10px;
+
+            animation: messageAppear .35s cubic-bezier(.2,.8,.2,1);
+        }
+
+        @keyframes messageAppear {
+            from {
+                opacity: 0;
+                transform: translateY(12px) scale(.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .user-message {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .bot-message {
+            align-self: flex-start;
+        }
+
+        .avatar {
+            min-width: 36px;
+            width: 36px;
+            height: 36px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 12px;
+            font-size: 16px;
+        }
+
+        .bot-message .avatar {
+            background: linear-gradient(
+                135deg,
+                var(--primary),
+                var(--primary2)
+            );
+
+            box-shadow: 0 6px 18px rgba(101,85,255,.25);
+        }
+
+        .user-message .avatar {
+            background: rgba(255,255,255,.10);
+            border: 1px solid rgba(255,255,255,.10);
+        }
+
+        .bubble {
+            padding: 13px 16px;
+
+            font-size: 14px;
+            line-height: 1.65;
+
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+
+            border-radius: 17px;
+        }
+
+        .bot-message .bubble {
+            background: var(--bot-bg);
+            border: 1px solid rgba(255,255,255,.07);
+            border-top-left-radius: 5px;
+
+            box-shadow: 0 10px 25px rgba(0,0,0,.12);
+        }
+
+        .user-message .bubble {
+            background: var(--user-gradient);
+            border-top-right-radius: 5px;
+
+            box-shadow:
+                0 8px 25px rgba(102, 79, 255, .22);
+        }
+
+        /* ================================
+           TYPING
+        ================================= */
+
+        .typing {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+
+            padding: 15px 18px;
+        }
+
+        .typing span {
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+            background: #a99cff;
+
+            animation: typing 1.1s infinite ease-in-out;
+        }
+
+        .typing span:nth-child(2) {
+            animation-delay: .15s;
+        }
+
+        .typing span:nth-child(3) {
+            animation-delay: .3s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: .35;
+            }
+
+            30% {
+                transform: translateY(-5px);
+                opacity: 1;
+            }
+        }
+
+        /* ================================
+           INPUT AREA
+        ================================= */
+
+        .input-area {
+            padding: 17px 22px 14px;
+
+            background:
+                linear-gradient(
+                    to top,
+                    rgba(5,8,22,.65),
+                    rgba(5,8,22,.20)
+                );
+
+            border-top: 1px solid rgba(255,255,255,.06);
+        }
+
+        .input-wrapper {
+            max-width: 850px;
+            margin: auto;
+
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+
+            padding: 8px 8px 8px 14px;
+
+            background: rgba(255,255,255,.055);
+            border: 1px solid rgba(255,255,255,.10);
+            border-radius: 17px;
+
+            transition: .3s ease;
+
+            box-shadow: 0 10px 35px rgba(0,0,0,.15);
+        }
+
+        .input-wrapper:focus-within {
+            border-color: rgba(124,92,255,.7);
+
+            box-shadow:
+                0 0 0 3px rgba(124,92,255,.08),
+                0 12px 40px rgba(0,0,0,.20);
+        }
+
+        textarea {
+            flex: 1;
+
+            width: 100%;
+            min-height: 27px;
+            max-height: 130px;
+
+            resize: none;
+
+            border: none;
+            outline: none;
+
+            background: transparent;
+            color: white;
+
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.5;
+
+            padding: 8px 3px;
+        }
+
+        textarea::placeholder {
+            color: #737f9d;
+        }
+
+        .send-btn {
+            width: 43px;
+            height: 43px;
+            flex-shrink: 0;
+
+            border: none;
+            border-radius: 13px;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            color: white;
+            font-size: 18px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--primary),
+                    var(--primary2)
+                );
+
+            cursor: pointer;
+
+            box-shadow:
+                0 7px 22px rgba(100,80,255,.30);
+
+            transition: .25s ease;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px) scale(1.04);
+
+            box-shadow:
+                0 10px 30px rgba(100,80,255,.45);
+        }
+
+        .send-btn:active {
+            transform: scale(.94);
+        }
+
+        .send-btn:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .footer-text {
+            margin-top: 9px;
+
+            text-align: center;
+            font-size: 10px;
+            color: #69748e;
+        }
+
+        /* ================================
+           MOBILE
+        ================================= */
+
+        @media (max-width: 900px) {
+
+            .chat-container {
+                width: 100%;
+                height: 100dvh;
+
+                border: none;
+                border-radius: 0;
+            }
+
+            .message {
+                max-width: 86%;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .header {
+                padding: 12px 13px;
+            }
+
+            .logo {
+                gap: 8px;
+            }
+
+            .logo-icon {
+                width: 38px;
+                height: 38px;
+                border-radius: 11px;
+                font-size: 19px;
+            }
+
+            .logo-info h1 {
+                font-size: 14px;
+            }
+
+            .status {
+                font-size: 9px;
+            }
+
+            select,
+            .clear-btn {
+                height: 34px;
+                padding: 0 8px;
+                font-size: 11px;
+            }
+
+            .chat-box {
+                padding: 17px 13px;
+            }
+
+            .message {
+                max-width: 91%;
+            }
+
+            .avatar {
+                min-width: 31px;
+                width: 31px;
+                height: 31px;
+                border-radius: 10px;
+                font-size: 14px;
+            }
+
+            .bubble {
+                padding: 11px 13px;
+                font-size: 13px;
+            }
+
+            .welcome {
+                padding: 15px;
+            }
+
+            .bot-circle {
+                width: 70px;
+                height: 70px;
+                border-radius: 21px;
+                font-size: 32px;
+            }
+
+            .welcome h2 {
+                font-size: 27px;
+            }
+
+            .welcome p {
+                font-size: 13px;
+            }
+
+            .input-area {
+                padding:
+                    11px 11px
+                    calc(11px + env(safe-area-inset-bottom, 0px));
+            }
+
+            .input-wrapper {
+                border-radius: 15px;
+            }
+
+            .send-btn {
+                width: 39px;
+                height: 39px;
+                border-radius: 11px;
+            }
+        }
+
+        @media (max-width: 380px) {
+
+            .status {
+                display: none;
+            }
+
+            .logo-info h1 {
+                font-size: 13px;
+            }
+
+            select,
+            .clear-btn {
+                padding: 0 6px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Animated Background -->
+<div class="background">
+    <div class="grid"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+</div>
+
+
+<div class="chat-container">
+
+    <!-- HEADER -->
+    <header class="header">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                🤖
+            </div>
+
+            <div class="logo-info">
+                <h1>ChatBuddy AI</h1>
+
+                <div class="status">
+                    <span class="status-dot"></span>
+                    AI Assistant • Online
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="controls">
+
+            <select id="mode">
+                <option value="professional">💼 Professional</option>
+                <option value="funny">😂 Funny</option>
+                <option value="angry">😠 Angry</option>
+                <option value="sad">😢 Sad</option>
+            </select>
+
+            <button
+                class="clear-btn"
+                onclick="clearChat()"
+                title="Clear conversation"
+            >
+                ✦ Clear
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- CHAT AREA -->
+    <main
+        class="chat-box"
+        id="chatBox"
+    >
+
+        <div
+            class="welcome"
+            id="welcome"
+        >
+
+            <div class="welcome-badge">
+                ✦ SMART AI ASSISTANT
+            </div>
+
+            <div class="bot-circle">
+                🤖
+            </div>
+
+            <h2>
+                How can I help you?
+            </h2>
+
+            <p>
+                Meet ChatBuddy, your intelligent AI assistant.
+                Ask questions, explore ideas, write code or just
+                have a conversation. Choose a personality and start chatting.
+            </p>
+
+        </div>
+
+    </main>
+
+
+    <!-- INPUT -->
+    <div class="input-area">
+
+        <div class="input-wrapper">
+
+            <textarea
+                id="messageInput"
+                rows="1"
+                placeholder="Ask ChorBot anything..."
+                aria-label="Message"
+            ></textarea>
+
+            <button
+                class="send-btn"
+                id="sendButton"
+                onclick="sendMessage()"
+                title="Send message"
+            >
+                ➤
+            </button>
+
+        </div>
+
+        <div class="footer-text">
+            ChorBot can make mistakes. Check important information.
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    /* ===================================
+       API
+    =================================== */
+
+    const API_URL = "http://127.0.0.1:8000";
+
+
+    /* ===================================
+       SESSION
+    =================================== */
+
+    const sessionId =
+        localStorage.getItem("chat_session") ||
+        crypto.randomUUID();
+
+    localStorage.setItem(
+        "chat_session",
+        sessionId
+    );
+
+
+    /* ===================================
+       ELEMENTS
+    =================================== */
+
+    const chatBox =
+        document.getElementById("chatBox");
+
+    const input =
+        document.getElementById("messageInput");
+
+    const sendButton =
+        document.getElementById("sendButton");
+
+
+    /* ===================================
+       ENTER TO SEND
+    =================================== */
+
+    input.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Enter" &&
+                !event.shiftKey
+            ) {
+
+                event.preventDefault();
+
+                sendMessage();
+            }
+        }
+    );
+
+
+    /* ===================================
+       AUTO RESIZE TEXTAREA
+    =================================== */
+
+    input.addEventListener(
+        "input",
+        function() {
+
+            this.style.height = "auto";
+
+            this.style.height =
+                Math.min(
+                    this.scrollHeight,
+                    130
+                ) + "px";
+        }
+    );
+
+
+    /* ===================================
+       REMOVE WELCOME
+    =================================== */
+
+    function removeWelcome() {
+
+        const welcome =
+            document.getElementById("welcome");
+
+        if (welcome) {
+            welcome.remove();
+        }
+    }
+
+
+    /* ===================================
+       ADD MESSAGE
+    =================================== */
+
+    function addMessage(text, type) {
+
+        removeWelcome();
+
+        const message =
+            document.createElement("div");
+
+        message.className =
+            "message " +
+            (
+                type === "user"
+                    ? "user-message"
+                    : "bot-message"
+            );
+
+
+        const avatar =
+            document.createElement("div");
+
+        avatar.className = "avatar";
+
+        avatar.textContent =
+            type === "user"
+                ? "👤"
+                : "🤖";
+
+
+        const bubble =
+            document.createElement("div");
+
+        bubble.className = "bubble";
+
+        bubble.textContent = text;
+
+
+        message.appendChild(avatar);
+        message.appendChild(bubble);
+
+        chatBox.appendChild(message);
+
+        chatBox.scrollTo({
+            top: chatBox.scrollHeight,
+            behavior: "smooth"
+        });
+    }
+
+
+    /* ===================================
+       TYPING INDICATOR
+    =================================== */
+
+    function showTyping() {
+
+        const message =
+            document.createElement("div");
+
+        message.className =
+            "message bot-message";
+
+        message.id = "typing";
+
+        message.innerHTML = `
+            <div class="avatar">🤖</div>
+
+            <div class="bubble typing">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        `;
+
+        chatBox.appendChild(message);
+
+        chatBox.scrollTo({
+            top: chatBox.scrollHeight,
+            behavior: "smooth"
+        });
+    }
+
+
+    function removeTyping() {
+
+        const typing =
+            document.getElementById("typing");
+
+        if (typing) {
+            typing.remove();
+        }
+    }
+
+
+    /* ===================================
+       SEND MESSAGE
+    =================================== */
+
+    async function sendMessage() {
+
+        const message =
+            input.value.trim();
+
+        if (!message) {
+            return;
+        }
+
+
+        const mode =
+            document.getElementById("mode").value;
+
+
+        addMessage(
+            message,
+            "user"
+        );
+
+
+        input.value = "";
+        input.style.height = "auto";
+
+        sendButton.disabled = true;
+
+        showTyping();
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API_URL}/chat`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            session_id: sessionId,
+                            message: message,
+                            mode: mode
+                        })
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            removeTyping();
+
+
+            if (data.response) {
+
+                addMessage(
+                    data.response,
+                    "bot"
+                );
+
+            } else {
+
+                addMessage(
+                    data.error ||
+                    "Something went wrong.",
+                    "bot"
+                );
+            }
+
+
+        } catch (error) {
+
+            removeTyping();
+
+            addMessage(
+                "Cannot connect to the server. Make sure FastAPI is running.",
+                "bot"
+            );
+
+            console.error(error);
+        }
+
+
+        sendButton.disabled = false;
+
+        input.focus();
+    }
+
+
+    /* ===================================
+       CLEAR CHAT
+    =================================== */
+
+    async function clearChat() {
+
+        try {
+
+            await fetch(
+                `${API_URL}/clear`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        session_id: sessionId
+                    })
+                }
+            );
+
+        } catch (error) {
+
+            console.log(error);
+        }
+
+
+        chatBox.innerHTML = `
+            <div class="welcome" id="welcome">
+
+                <div class="welcome-badge">
+                    ✦ NEW CONVERSATION
+                </div>
+
+                <div class="bot-circle">
+                    🤖
+                </div>
+
+                <h2>
+                    What's on your mind?
+                </h2>
+
+                <p>
+                    Your previous conversation has been cleared.
+                    Start a fresh conversation with ChorBot.
+                </p>
+
+            </div>
+        `;
+
+
+        input.focus();
+    }
+
+</script>
+
+</body>
+</html>
